@@ -123,15 +123,3 @@ class MaintenanceRequest(models.Model):
 
   def __str__(self):
     return f"Maintenance Request for {self.property.title_en}"
-
-@register(Property)
-class PropertyTranslationOptions(TranslationOptions):
-  fields = ('title_en', 'description_en', 'description_ar', 'title_ar')
-
-@register(PropertyType)
-class PropertyTypeTranslationOptions(TranslationOptions):
-  fields = ('name',)
-
-@register(Amenity)
-class AmenityTranslationOptions(TranslationOptions):
-  fields = ('name',)
