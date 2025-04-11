@@ -1,6 +1,7 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+from django.core.validators import RegexValidator
 
 class CustomUser(AbstractUser):
   class USER_TYPE_CHOICES(models.TextChoices):
@@ -8,6 +9,11 @@ class CustomUser(AbstractUser):
     INVESTOR = 'INVESTOR', _('مستثمر')
     TENANT = 'TENANT', _('مستأجر')
     COMPANY = 'COMPANY', _('شركة')
+    
+  phone_regex = RegexValidator(
+      regex=r'^\+968\d{8}$',
+      message=_("رقم الهاتف يجب أن يكون بالصيغة التالية: +968XXXXXXXX.")
+    )
     # الحقول الأساسية
   user_type = models.CharField(
     max_length=10,
@@ -17,9 +23,9 @@ class CustomUser(AbstractUser):
   )
   phone = models.CharField(
     max_length=15,
+    validators=[phone_regex],
     unique=True,
     verbose_name=_('رقم الهاتف'),
-    help_text=_('مثال: 968XXXXXXXX')
   )
   is_verified = models.BooleanField(
     default=False,
@@ -29,7 +35,7 @@ class CustomUser(AbstractUser):
     max_length=20,
     blank=True,
     verbose_name=_('الهوية العمانية'),
-    help_text=_('مطلوب للمستخدمين العمانيين ')
+    help_text=_('مثال: 1234567890123456')
   )
 
   class Meta:
@@ -40,6 +46,10 @@ class CustomUser(AbstractUser):
     return f"{self.username} ({self.get_user_type_display()})"
 
 class UserProfile(models.Model):
+  class Gender(models.TextChoices):
+    MALE = 'M', _('ذكر')
+    FEMALE = 'F', _('أنثى')
+    
   user = models.OneToOneField(
     CustomUser, 
     on_delete=models.CASCADE,
@@ -63,6 +73,12 @@ class UserProfile(models.Model):
     max_length=20,
     blank=True,
     verbose_name=_('رقم الهوية الوطنية'),
+  )
+  gender = models.CharField(
+    max_length=1,
+    choices=Gender.choices,
+    verbose_name=_('الجنس'),
+    blank=True
   )
 
   class Meta:
